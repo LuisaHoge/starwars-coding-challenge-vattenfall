@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { StarwarsMainComponent } from './components/starwars-main/starwars-main/starwars-main-component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [StarwarsMainComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

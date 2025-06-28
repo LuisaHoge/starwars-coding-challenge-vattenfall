@@ -1,0 +1,7 @@
+.input-container {
+  position: relative;
+}
+.input-error {
+  position: absolute;
+  font-size: 0.75rem;
+}

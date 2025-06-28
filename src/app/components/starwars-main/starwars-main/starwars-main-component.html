@@ -1,0 +1,40 @@
+<div class="form-wrapper">
+  <form [formGroup]="searchForm" class="form-fields-wrapper">
+
+    <app-search-field label="Starship" [control]="starshipControl"></app-search-field>
+
+    <app-search-field label="People" [control]="peopleControl"></app-search-field>
+
+    <app-search-field label="Vehicle" [control]="vehicleControl"></app-search-field>
+
+    <button class="btn btn-primary" [disabled]="!activateSearch" (click)="search()">Search</button>
+  </form>
+</div>
+
+@if (showNoResultMessage()) {
+<div class="alert alert-warning mt-3 text-center" role="alert">
+  Leider wurden keine passenden Ergebnisse gefunden.
+</div>
+}
+
+<hr>
+
+<div class="film-grid">
+  @for (film of starWarsFilms(); track film.episode_id; let i = $index) {
+  <div class="card" [ngClass]="{ 'highlighted-card': highlightedFilms().includes(film.url) }">
+    <div class="card-body">
+      <h5 class="card-title"> <span>{{ film.title }}</span>
+        @if (highlightedFilms().includes(film.url)) {
+          <span class="rocket-icon ms-2" @flyIn>
+            <span class="badge rounded-pill text-bg-primary">
+              <i class="bi bi-rocket-takeoff"></i>
+            </span>
+            </span>
+          }
+      </h5>
+      <h6 class="card-subtitle mb-2 text-muted">Release Date: {{ film.release_date | date:'dd.MM.yyyy' }}</h6>
+      <p class="card-text">{{ film.opening_crawl }}</p>
+    </div>
+  </div>
+  }
+</div>
