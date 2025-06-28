@@ -1,0 +1,23 @@
+.list-group-item {
+    cursor: pointer;
+}
+
+.list-group-item.hover-highlight:hover::before {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 0.4rem;
+  background: linear-gradient(135deg, #0d6efd, #dc3545);
+  z-index: -1;
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 2px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.list-group-item.hover-highlight:hover::before {
+  opacity: 1;
+}

@@ -6,14 +6,18 @@ import { take } from 'rxjs';
 import { IStarWarsFilms } from '../../interfaces/star-wars-films-interface.interface';
 import { CommonModule, DatePipe } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
-
+import { Modal } from 'bootstrap';
+import { SelectionDialogComponent } from '../../dialogs/selection-dialog-component/selection-dialog-component';
+import { IStarWarsVehicle } from '../../interfaces/star-wars-vehicles-interface.interface';
+import { IStarWarsPeople } from '../../interfaces/star-wars-people-interface.interface';
+import { IStarWarsStarship } from '../../interfaces/star-wars-starships-interface.interface';
 
 /**
  * Star Wars Main Component
  */
 @Component({
   selector: 'app-starwars-main',
-  imports: [SearchFieldComponent, ReactiveFormsModule, DatePipe, CommonModule],
+  imports: [SearchFieldComponent, ReactiveFormsModule, DatePipe, CommonModule, SelectionDialogComponent],
   templateUrl: './starwars-main-component.html',
   styleUrls: ['./starwars-main-component.css'],
   animations: [
@@ -34,6 +38,7 @@ export class StarwarsMainComponent {
    * List of all Star Wars Films
    */
   public starWarsFilms = signal<IStarWarsFilms[]>([]);
+
   /**
    * Search Form
    */
@@ -60,34 +65,38 @@ export class StarwarsMainComponent {
   /**
    * Vehicle Control Getter
    */
-  get vehicleControl(): FormControl<string | null> {
+  public get vehicleControl(): FormControl<string | null> {
     return this.searchForm.get('vehicle') as FormControl<string | null>;
   }
 
   /**
    * People Control Getter
    */
-  get peopleControl(): FormControl<string | null> {
+  public get peopleControl(): FormControl<string | null> {
     return this.searchForm.get('people') as FormControl<string | null>;
   }
 
   /**
    * Starship Control Getter
    */
-  get starshipControl(): FormControl<string | null> {
+  public get starshipControl(): FormControl<string | null> {
     return this.searchForm.get('starship') as FormControl<string | null>;
   }
 
   /**
    * Activate Search
    */
-  get activateSearch(): boolean {
+  public get activateSearch(): boolean {
     const filledField = [this.peopleControl, this.starshipControl, this.vehicleControl].find(
       field => field.value !== null && field.value.length >= 3
     );
     return !!filledField;
   }
 
+  /**
+   * List of multiple items for the dialog
+   */
+  public selectItems = signal<IStarWarsVehicle[] | IStarWarsPeople[] | IStarWarsStarship[]>([]);
 
   /**
    * Konstruktor
@@ -104,7 +113,6 @@ export class StarwarsMainComponent {
     this.starWarsAPIService.searchFilms().pipe(take(1)).subscribe(films => {
       if (!!films.results && films.results.length > 0) {
         this.starWarsFilms.set(films.results);
-        console.log('Star Wars Films loaded:', this.starWarsFilms());
       }
     });
   }
@@ -144,49 +152,61 @@ export class StarwarsMainComponent {
     });
   }
 
+  /**
+   * Searches for People, Starships or Vehicles based on the filled field
+   */
   public search(): void {
     const searchValues = this.searchForm.value;
 
     const filledField = Object.entries(searchValues).find(
       ([, value]) => !!value?.trim()
     );
-    console.log('Active Query:', filledField);
 
     if (filledField?.[0] === 'people' && !!filledField[1]) {
       this.starWarsAPIService.searchPeople(filledField[1]).pipe(take(1)).subscribe(people => {
-        if (!people || people.results.length === 0) {
-          this.showNoResultMessage.set(true);
-          setTimeout(() => this.showNoResultMessage.set(false), 5000);
-        }
-        else if (people.results.length === 1) {
-          console.log(people.results[0].films);
-          this.highlightedFilms.set(people.results[0].films);
-        }
+        this.handleSearchResults(people.results);
       });
     } else if (filledField?.[0] === 'starship' && !!filledField[1]) {
       this.starWarsAPIService.searchStarships(filledField[1]).pipe(take(1)).subscribe(starship => {
-        if (!starship || starship.results.length === 0) {
-          this.showNoResultMessage.set(true);
-          setTimeout(() => this.showNoResultMessage.set(false), 5000);
-        }
-        else if (starship.results.length === 1) {
-          console.log(starship.results[0].films);
-          this.highlightedFilms.set(starship.results[0].films);
-        }
-        console.log('Starship Search Result:', starship);
+        this.handleSearchResults(starship.results);
       });
     } else if (filledField?.[0] === 'vehicle' && !!filledField[1]) {
       this.starWarsAPIService.searchVehicles(filledField[1]).pipe(take(1)).subscribe(vehicle => {
-        if (!vehicle || vehicle.results.length === 0) {
-          this.showNoResultMessage.set(true);
-          setTimeout(() => this.showNoResultMessage.set(false), 5000);
-        }
-        else if (vehicle.results.length === 1) {
-          console.log(vehicle.results[0].films);
-          this.highlightedFilms.set(vehicle.results[0].films);
-        }
-        console.log('Vehicle Search Result:', vehicle);
+        this.handleSearchResults(vehicle.results);
       });
+    }
+  }
+
+
+  /**
+   * Handles the search results from the API
+   * 
+   * @param {IStarWarsVehicle[] | IStarWarsPeople[] | IStarWarsStarship[]} results Search results from the API
+   */
+  private handleSearchResults(results: IStarWarsVehicle[] | IStarWarsPeople[] | IStarWarsStarship[]): void {
+    if (!results || results.length === 0) {
+      this.showNoResultMessage.set(true);
+      setTimeout(() => this.showNoResultMessage.set(false), 5000);
+    } else if (results.length === 1) {
+      this.highlightedFilms.set(results[0].films ?? []);
+    } else {
+      this.selectItems.set(results);
+      const modal = new Modal(document.getElementById('itemModal')!);
+      modal.show();
+    }
+  }
+
+
+  /**
+   * Handles the selection of an item from the dialog
+   * 
+   * @param {IStarWarsVehicle | IStarWarsPeople | IStarWarsStarship} item selected item from the dialog
+   */
+  public handleItemSelection(item: IStarWarsVehicle | IStarWarsPeople | IStarWarsStarship): void {
+    if (!!item.films && item.films.length > 0) {
+      this.highlightedFilms.set(item.films);
+    } else {
+      this.highlightedFilms.set([]);
     }
   }
 }

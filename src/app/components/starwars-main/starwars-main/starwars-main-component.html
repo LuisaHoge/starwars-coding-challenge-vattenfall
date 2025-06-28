@@ -1,24 +1,19 @@
 <div class="form-wrapper">
   <form [formGroup]="searchForm" class="form-fields-wrapper">
-
     <app-search-field label="Starship" [control]="starshipControl"></app-search-field>
-
     <app-search-field label="People" [control]="peopleControl"></app-search-field>
-
     <app-search-field label="Vehicle" [control]="vehicleControl"></app-search-field>
-
     <button class="btn btn-primary" [disabled]="!activateSearch" (click)="search()">Search</button>
   </form>
 </div>
 
 @if (showNoResultMessage()) {
-<div class="alert alert-warning mt-3 text-center" role="alert">
-  Leider wurden keine passenden Ergebnisse gefunden.
-</div>
+<div class="alert alert-warning mt-3 text-center" role="alert">Unfortunately, no matching results were found.</div>
 }
 
 <hr>
 
+<!-- Star Wars Films Section -->
 <div class="film-grid">
   @for (film of starWarsFilms(); track film.episode_id; let i = $index) {
   <div class="card" [ngClass]="{ 'highlighted-card': highlightedFilms().includes(film.url) }">
@@ -38,3 +33,9 @@
   </div>
   }
 </div>
+
+<!--Multiple Selection Dialog-->
+<app-selection-dialog-component
+  [items]="selectItems()"
+  (selected)="handleItemSelection($event)">
+</app-selection-dialog-component>

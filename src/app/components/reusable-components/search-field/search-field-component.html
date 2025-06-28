@@ -1,7 +1,6 @@
 <div class="input-container">
   <input type="text" class="form-control" [formControl]="control" [placeholder]="placeholderText" />
-
-  @if (control.touched && control.value.length > 0 && control.value.length < 3) {
-    <div class="text-danger input-error">Bitte mindestens 3 Zeichen eingeben.</div>
+  @if (control.touched && control.value.length > 0 && control.value.length < 3) { 
+    <div class="text-danger input-error">Please enter a minimum of 3 characters.</div>
   }
 </div>
