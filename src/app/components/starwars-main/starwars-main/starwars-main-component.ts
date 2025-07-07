@@ -47,9 +47,9 @@ export class StarwarsMainComponent {
     starship: FormControl<string | null>;
     vehicle: FormControl<string | null>;
   }>({
-    people: new FormControl('', [Validators.required]),
-    starship: new FormControl('', [Validators.required]),
-    vehicle: new FormControl('', [Validators.required])
+    people: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    starship: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    vehicle: new FormControl('', [Validators.required, Validators.minLength(3)])
   });
 
   /**
@@ -93,6 +93,13 @@ export class StarwarsMainComponent {
     return !!filledField;
   }
 
+  // Alternave implementation for activateSearch
+  /*  public get activateSearch(): boolean {
+        return [this.peopleControl, this.starshipControl, this.vehicleControl].some(
+        field => field.valid);
+      } */
+
+
   /**
    * List of multiple items for the dialog
    */
@@ -133,7 +140,7 @@ export class StarwarsMainComponent {
               otherFields.clearValidators();
               otherFields.updateValueAndValidity({ emitEvent: false });
             } else {
-              field.setValidators([Validators.required]);
+              field.setValidators([Validators.required, Validators.minLength(3)]);
               field.updateValueAndValidity({ emitEvent: false });
             }
           });
@@ -143,7 +150,7 @@ export class StarwarsMainComponent {
 
           if (emptyFields) {
             searchFields.forEach(field => {
-              field.setValidators([Validators.required]);
+              field.setValidators([Validators.required, Validators.minLength(3)]);
               field.updateValueAndValidity({ emitEvent: false });
             });
           }
