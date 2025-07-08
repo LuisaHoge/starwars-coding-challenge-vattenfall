@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormControl, ReactiveFormsModule } from '@angular/forms';
 
 /**
  * Search Field Component
@@ -25,8 +25,14 @@ export class SearchFieldComponent {
   /**
    * Placeholder text for the input field.
    */
+  /* Previous implementation:   
   public get placeholderText(): string {
     return this.control?.validator ? `${this.label} *` : this.label;
-  }
+  } */
+  public get placeholderText(): string {
+    const validator = this.control?.validator?.({} as AbstractControl);
+    const isRequired = validator?.['required'];
 
+    return isRequired ? `${this.label} *` : this.label;
+  }
 }
